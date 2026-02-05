@@ -13,7 +13,7 @@ function generateCode() {
 }
 
 app.post('/request-code', (req, res) => {
-  const serverId = req.body.serverId
+  const { serverId } = req.body
   if (!serverId) return res.status(400).send("serverId required")
   const code = generateCode()
   activeServers[code] = serverId
@@ -21,22 +21,22 @@ app.post('/request-code', (req, res) => {
 })
 
 app.post('/release-code', (req, res) => {
-  const code = req.body.code
+  const { code } = req.body
   if (!code || !activeServers[code]) return res.status(400).send("Invalid code")
   delete activeServers[code]
   res.json({ status: "ok" })
 })
 
-app.get('/roblox-status/:code', (req, res) => {
-  const code = req.params.code
+app.get('/roblox-status', (req, res) => {
+  const code = req.query.code
   const serverId = activeServers[code] || null
   res.json({ active_server: serverId })
 })
 
 app.post('/roblox-trigger', (req, res) => {
-  const code = req.body.server_code
-  if (!/^\d{3}$/.test(code)) return res.status(400).send("Invalid server code")
-  const serverId = activeServers[code]
+  const { server_code } = req.body
+  if (!/^\d{3}$/.test(server_code)) return res.status(400).send("Invalid server code")
+  const serverId = activeServers[server_code]
   if (!serverId) return res.status(403).send("Server not active")
   res.json({ status: "ok", active_server: serverId })
 })
