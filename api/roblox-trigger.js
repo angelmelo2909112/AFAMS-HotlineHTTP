@@ -1,24 +1,38 @@
+import { createClient } from "@supabase/supabase-js"
 import { parse } from "querystring"
 
-export default function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send("Method not allowed")
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+)
 
-  let code
-
-  if (req.headers['content-type']?.includes("application/json")) {
-    code = req.body?.server_code
-  } else {
-    code = req.body?.server_code || parse(req.body || "").server_code
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).send("Method not allowed")
   }
 
-  const activeServers = global.activeServers || {}
+  const body =
+    typeof req.body === "string"
+      ? parse(req.body)
+      : req.body
 
-  if (!code || !activeServers[code]) {
+  const code = body.server_code
+  if (!code) {
+    return res.status(400).send("server_code required")
+  }
+
+  const { data, error } = await supabase
+    .from("server_codes")
+    .select("server_id")
+    .eq("code", code)
+    .single()
+
+  if (error || !data) {
     return res.status(400).send("Invalid code")
   }
 
-  global.activeTriggers ||= {}
-  global.activeTriggers[code] = true
-
-  res.status(200).json({ success: true })
+  res.status(200).json({
+    success: true,
+    serverId: data.server_id
+  })
 }
