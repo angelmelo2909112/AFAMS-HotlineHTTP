@@ -1,16 +1,17 @@
 import { parse } from "querystring"
 
 export default function handler(req, res) {
-  const raw = req.body?.body
-  const parsed = parse(raw || "")
+  if (req.method !== 'POST') return res.status(405).send("Method not allowed")
+
+  const parsed = parse(req.body?.body || "")
   const code = parsed.server_code
 
   if (!code || !global.codeOwners?.[code]) {
-    return res.status(400).json({ error: "Invalid code" })
+    return res.status(400).send("Invalid code")
   }
 
   global.activeTriggers ||= {}
-  global.activeTriggers[code] = global.codeOwners[code]
+  global.activeTriggers[code] = true
 
-  return res.status(200).json({ success: true })
+  res.status(200).json({ success: true })
 }
