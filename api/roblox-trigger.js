@@ -13,13 +13,13 @@ export default async function handler(req, res) {
   const code = body.server_code;
   if (!code) return res.status(400).send("server_code required");
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("server_codes")
     .select("server_id")
     .eq("code", code)
     .single();
 
-  if (error || !data) return res.status(400).send("Invalid code");
+  if (!data) return res.status(400).send("Invalid code");
 
   await supabase
     .from("server_codes")
