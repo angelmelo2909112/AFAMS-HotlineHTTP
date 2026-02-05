@@ -1,16 +1,28 @@
-global.codeOwners ||= {}
-global.activeTriggers ||= {}
+import { createClient } from "@supabase/supabase-js";
 
-export default function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).send("Method not allowed")
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-  const { code } = req.query
+export default async function handler(req, res) {
+  if (req.method !== "GET") return res.status(405).send("Method not allowed");
 
-  if (!global.activeTriggers[code]) {
-    return res.status(200).json({ active_server: null })
+  const { code } = req.query;
+
+  if (!code) return res.status(400).send("code required");
+
+  const { data, error } = await supabase
+    .from("server_codes")
+    .select("server_id, triggered")
+    .eq("code", code)
+    .single();
+
+  if (error || !data || !data.triggered) {
+    return res.status(200).json({ active_server: null });
   }
 
   res.status(200).json({
-    active_server: global.codeOwners[code]
-  })
+    active_server: data.server_id
+  });
 }
