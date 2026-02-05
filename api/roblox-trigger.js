@@ -3,8 +3,12 @@ import { parse } from "querystring"
 export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send("Method not allowed")
 
-  const parsed = parse(req.body?.body || "")
-  const code = parsed.server_code
+  let code
+  if (req.headers['content-type']?.includes("application/json")) {
+    code = req.body.server_code
+  } else {
+    code = req.body.server_code || parse(req.body || "").server_code
+  }
 
   if (!code || !global.codeOwners?.[code]) {
     return res.status(400).send("Invalid code")
