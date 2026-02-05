@@ -7,7 +7,7 @@ let activeServers = {}
 function generateCode() {
   let code
   do {
-    code = Math.floor(100 + Math.random() * 900).toString()
+    code = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
   } while (activeServers[code])
   return code
 }
