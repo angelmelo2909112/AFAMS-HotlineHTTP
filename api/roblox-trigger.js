@@ -10,7 +10,8 @@ export default function handler(req, res) {
     code = req.body.server_code || parse(req.body || "").server_code
   }
 
-  if (!code || !global.codeOwners?.[code]) {
+  const activeServers = global.activeServers || {}
+  if (!code || !activeServers[code]) {
     return res.status(400).send("Invalid code")
   }
 
