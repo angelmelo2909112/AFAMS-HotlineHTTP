@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   let code;
   while (true) {
-    code = Math.floor(10 + Math.random() * 990).toString().padStart(3, '0');
+    code = Math.floor(10 + Math.random() * 990).toString().padStart(3, "0");
     const { data } = await supabase
       .from("server_codes")
       .select("code")
