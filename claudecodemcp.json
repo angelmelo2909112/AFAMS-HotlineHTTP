@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "roblox-studio": {
-      "command": "/path/to/studio-rust-mcp-server/target/release/rbx-studio-mcp",
-      "args": ["--stdio"],
-      "description": "Roblox Studio MCP Server for direct Studio integration"
-    }
-  }
-}
